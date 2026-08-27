@@ -1,0 +1,26 @@
+name: heimdall-managed-db
+
+services:
+  postgres:
+    image: postgres:18.4
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: heimdall_cluster_admin
+      POSTGRES_PASSWORD: ${HEIMDALL_MANAGED_DB_ADMIN_PASSWORD:?required}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+      HEIMDALL_MANAGED_DB_PROVISIONER_PASSWORD: ${HEIMDALL_MANAGED_DB_PROVISIONER_PASSWORD:?required}
+    ports:
+      - "${HEIMDALL_MANAGED_DB_BIND_ADDRESS:-127.0.0.1}:${HEIMDALL_MANAGED_DB_PORT:-55433}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./init-managed-postgres.sh:/docker-entrypoint-initdb.d/001-heimdall-bootstrap.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -q -U heimdall_cluster_admin -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    name: heimdall-managed-db-postgres
