@@ -12,6 +12,12 @@ docker compose --env-file .env up -d --wait
 docker compose --env-file .env ps
 ```
 
+`provisioner-bootstrap`은 PostgreSQL이 healthy가 된 뒤 매번 idempotent하게 실행되어 신규·기존
+volume의 `heimdall_provisioner` role과 project deletion용 `pg_signal_backend` `SET` privilege를
+보정하고 정상 종료한다. `docker compose ps -a`에서 이 one-shot service가 `Exited (0)`인 것은
+정상이다. bootstrap이 실패하면 Control Plane Worker의 deletion preflight도 fail-fast하므로 원인을
+해결하기 전에는 project database 삭제를 시도하지 않는다.
+
 local PostgreSQL endpoint는 기본적으로 `127.0.0.1:55433`이다. Heimdall API와 project container는
 Docker Desktop의 `host.docker.internal:55433`을 통해 연결한다. 이 Compose는
 `heimdall-python-local` network에 참여하지 않는다.

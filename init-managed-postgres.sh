@@ -20,4 +20,6 @@ ALTER ROLE heimdall_provisioner
 REVOKE CONNECT ON DATABASE postgres FROM PUBLIC;
 REVOKE CONNECT ON DATABASE template1 FROM PUBLIC;
 GRANT CONNECT ON DATABASE postgres TO heimdall_provisioner;
+GRANT pg_signal_backend TO heimdall_provisioner
+  WITH INHERIT FALSE, SET TRUE, ADMIN FALSE;
 SQL

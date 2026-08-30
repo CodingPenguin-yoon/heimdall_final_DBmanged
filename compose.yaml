@@ -21,6 +21,21 @@ services:
       retries: 10
     restart: unless-stopped
 
+  provisioner-bootstrap:
+    image: postgres:18.4
+    environment:
+      POSTGRES_USER: heimdall_cluster_admin
+      PGPASSWORD: ${HEIMDALL_MANAGED_DB_ADMIN_PASSWORD:?required}
+      PGHOST: postgres
+      HEIMDALL_MANAGED_DB_PROVISIONER_PASSWORD: ${HEIMDALL_MANAGED_DB_PROVISIONER_PASSWORD:?required}
+    volumes:
+      - ./init-managed-postgres.sh:/usr/local/bin/init-managed-postgres.sh:ro
+    command: ["/usr/local/bin/init-managed-postgres.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
 volumes:
   postgres-data:
     name: heimdall-managed-db-postgres
