@@ -40,3 +40,13 @@ HEIMDALL_MANAGED_DB_PORT=5432
 ```
 
 `docker compose down -v`는 database volume을 삭제하므로 의도적인 초기화 외에는 사용하지 않는다.
+
+## Heimdall 웹 DB 조회
+
+웹 조회는 API가 private endpoint에서 프로젝트별 reader role을 사용한다. DB 포트를
+인터넷에 공개하지 않는다. 기존 volume은 `docker compose run --rm provisioner-bootstrap`으로
+갱신한다. bootstrap은 provisioner에 로그 보호용 `log_statement`, `log_min_messages`,
+`log_min_error_statement`, `log_min_duration_statement`, `log_min_duration_sample`,
+`log_duration` SET 권한을 부여한다. reader에는 이 권한을 주지 않으며 role 기본값만 설정한다.
+reader SQL·결과·비밀번호가 일반 PostgreSQL 오류/statement 로그에 남지 않게 하기 위한 설정이다.
+애플리케이션용 DB/role과 기존 데이터 volume은 유지된다.

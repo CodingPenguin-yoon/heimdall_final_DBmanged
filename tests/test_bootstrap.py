@@ -43,6 +43,15 @@ class ManagedDatabaseBootstrapTests(unittest.TestCase):
                 sql,
             )
 
+    def test_web_reader_log_settings_are_granted_only_to_provisioner(self) -> None:
+        sql = " ".join(BOOTSTRAP.read_text().split())
+        self.assertIn(
+            "GRANT SET ON PARAMETER log_statement, log_min_error_statement, log_min_messages, "
+            "log_min_duration_statement, log_min_duration_sample, log_duration "
+            "TO heimdall_provisioner;", sql,
+        )
+        self.assertNotIn("WITH GRANT OPTION", sql)
+
     def test_compose_reconciles_privileges_after_existing_postgres_is_healthy(self) -> None:
         environment = os.environ | {
             "HEIMDALL_MANAGED_DB_ADMIN_PASSWORD": "test-admin-password",

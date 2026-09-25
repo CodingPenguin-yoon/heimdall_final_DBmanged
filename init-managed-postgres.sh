@@ -17,6 +17,12 @@ ALTER ROLE heimdall_provisioner
   WITH LOGIN CREATEDB CREATEROLE NOINHERIT NOSUPERUSER
   PASSWORD :'provisioner_password';
 
+-- Web reader roles must not expose user SQL in PostgreSQL logs. Only the
+-- provisioner may configure these role defaults; readers receive no SET grant.
+GRANT SET ON PARAMETER log_statement, log_min_error_statement, log_min_messages,
+  log_min_duration_statement, log_min_duration_sample, log_duration
+  TO heimdall_provisioner;
+
 REVOKE CONNECT ON DATABASE postgres FROM PUBLIC;
 REVOKE CONNECT ON DATABASE template1 FROM PUBLIC;
 GRANT CONNECT ON DATABASE postgres TO heimdall_provisioner;
